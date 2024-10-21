@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ngexam/pages/addCard_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final List<Map<String, dynamic>> dataList;
+
+  HomePage({required this.dataList});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -13,40 +15,48 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Card List"),
+        title: Text("Card List", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
       ),
       body: Column(
         children: [
+
+          Divider(thickness: 1,),
+
           Expanded(
-            child: ListView(
-              children: [
-                CustomCard(
-                  cardNumber: '1234 5678 9876 5432',
-                  validThru: '12/24',
-                ),
-
-                CustomCard(
-                  cardNumber: '1234 5678 9876 5432',
-                  validThru: '12/24',
-                ),
-
-
-              ],
+            child: widget.dataList.isEmpty
+                ? Center(
+              child: Text('No cards added yet.'),
+            )
+                : ListView.builder(
+              itemCount: widget.dataList.length,
+              itemBuilder: (context, index) {
+                return CustomCard(
+                  cardNumber: widget.dataList[index]['cardNumber'],
+                  validThru: widget.dataList[index]['expiryDate'],
+                );
+              },
             ),
           ),
 
-          /// Add Card button
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
               width: double.infinity,
               child: MaterialButton(
                 height: 60,
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddcardPage()),
+                    MaterialPageRoute(
+                      builder: (context) => AddcardPage(),
+                    ),
                   );
+
+                  if (result != null) {
+                    setState(() {
+                      widget.dataList.add(result);
+                    });
+                  }
                 },
                 color: Colors.blue,
                 shape: RoundedRectangleBorder(
@@ -113,5 +123,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
